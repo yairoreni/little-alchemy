@@ -346,6 +346,8 @@ class Game {
         this.draggedElement = null;
         this.dragOffset = { x: 0, y: 0 };
         this.elementCounter = 0;
+        this.lastDropX = null;
+        this.lastDropY = null;
         this.loadGame();
         this.init();
     }
@@ -364,6 +366,7 @@ class Game {
     init() {
         this.renderSidebar();
         this.setupEventListeners();
+        document.getElementById('hintBtn').addEventListener('click', () => this.giveHint());
     }
 
     renderSidebar() {
@@ -409,6 +412,10 @@ class Game {
         e.preventDefault();
         const source = e.dataTransfer.getData('source');
         const element = e.dataTransfer.getData('element');
+        const canvas = document.getElementById('canvas');
+
+        this.lastDropX = e.clientX - canvas.getBoundingClientRect().left;
+        this.lastDropY = e.clientY - canvas.getBoundingClientRect().top;
 
         if (source === 'sidebar') {
             this.placeElement(element, e.clientX, e.clientY);
@@ -416,8 +423,8 @@ class Game {
             const id = e.dataTransfer.getData('elementId');
             const placed = this.placedElements.get(id);
             if (placed) {
-                placed.x = e.clientX - document.getElementById('canvas').getBoundingClientRect().left - placed.width / 2;
-                placed.y = e.clientY - document.getElementById('canvas').getBoundingClientRect().top - placed.height / 2;
+                placed.x = this.lastDropX - placed.width / 2;
+                placed.y = this.lastDropY - placed.height / 2;
                 this.renderCanvas();
                 this.checkCombinations();
             }
@@ -450,6 +457,10 @@ class Game {
         this.placedElements.forEach((placed) => {
             const div = document.createElement('div');
             div.className = 'placed-element';
+            if (placed.animate) {
+                div.classList.add('pop-in');
+                placed.animate = false;
+            }
 
             const emoji = document.createElement('div');
             emoji.className = 'placed-emoji';
@@ -503,6 +514,27 @@ class Game {
                         this.discovered.add(result);
                         this.saveGame();
                         this.renderSidebar();
+
+                        // Remove source elements
+                        this.placedElements.delete(e1.id);
+                        this.placedElements.delete(e2.id);
+
+                        // Spawn result at drop position
+                        const spawnX = this.lastDropX !== null ? this.lastDropX : (e1.x + e2.x) / 2;
+                        const spawnY = this.lastDropY !== null ? this.lastDropY : (e1.y + e2.y) / 2;
+
+                        const newId = `elem-${this.elementCounter++}`;
+                        this.placedElements.set(newId, {
+                            id: newId,
+                            element: result,
+                            x: spawnX - 50,
+                            y: spawnY - 20,
+                            width: 100,
+                            height: 40,
+                            animate: true
+                        });
+
+                        this.renderCanvas();
                         this.showFeedback(`✓ You created ${result}!`, 'success');
                     }
                 }
@@ -516,12 +548,34 @@ class Game {
         return Math.sqrt(dx * dx + dy * dy) < distance;
     }
 
+    giveHint() {
+        const discovered = Array.from(this.discovered);
+        let validRecipes = [];
+
+        for (const key in COMBINATIONS) {
+            const [e1, e2] = key.split('+');
+            const result = COMBINATIONS[key];
+
+            if (discovered.includes(e1) && discovered.includes(e2) && !this.discovered.has(result)) {
+                validRecipes.push({ e1, e2, result });
+            }
+        }
+
+        if (validRecipes.length === 0) {
+            this.showFeedback('💡 You\'ve discovered everything!', 'hint');
+            return;
+        }
+
+        const recipe = validRecipes[Math.floor(Math.random() * validRecipes.length)];
+        this.showFeedback(`💡 Try combining ${recipe.e1} and ${recipe.e2}...`, 'hint');
+    }
+
     showFeedback(message, type) {
         const div = document.createElement('div');
-        div.className = `feedback ${type}`;
+        div.className = `toast ${type}`;
         div.textContent = message;
         document.body.appendChild(div);
-        setTimeout(() => div.remove(), 2000);
+        setTimeout(() => div.remove(), 3000);
     }
 }
 

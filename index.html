@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Little Alchemy</title>
+    <title>Yair and Roi's Little Alchemy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -11,47 +12,77 @@
             box-sizing: border-box;
         }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f2847 100%);
             height: 100vh;
             overflow: hidden;
+            color: #e2e8f0;
         }
         .container {
             display: flex;
             height: 100vh;
+            gap: 1px;
+            background: rgba(15, 23, 42, 0.5);
+        }
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+        }
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         .sidebar {
-            width: 250px;
-            background: rgba(0, 0, 0, 0.2);
-            padding: 20px;
+            width: 280px;
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(20px);
+            padding: 100px 20px 20px;
             overflow-y: auto;
-            border-right: 2px solid rgba(255, 255, 255, 0.1);
+            border-right: 1px solid rgba(148, 163, 184, 0.1);
         }
         .sidebar h2 {
-            color: white;
-            margin-bottom: 20px;
-            font-size: 18px;
+            color: #cbd5e1;
+            margin-bottom: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
         .element {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 12px;
+            background: rgba(71, 85, 105, 0.3);
+            color: #e2e8f0;
+            padding: 14px;
             margin: 8px 0;
-            border-radius: 8px;
+            border-radius: 12px;
             cursor: grab;
             user-select: none;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            transition: all 0.2s;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            transition: all 0.3s;
             font-weight: 500;
             text-align: center;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 8px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
         .element:hover {
-            transform: scale(1.05);
-            border-color: rgba(255, 255, 255, 0.8);
+            background: rgba(71, 85, 105, 0.5);
+            border-color: rgba(148, 163, 184, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(96, 165, 250, 0.2);
         }
         .element:active {
             cursor: grabbing;
@@ -61,40 +92,52 @@
             line-height: 1;
         }
         .element-text {
-            font-size: 13px;
+            font-size: 12px;
             word-break: break-word;
+            color: #cbd5e1;
         }
         .canvas {
             flex: 1;
             position: relative;
-            background: rgba(255, 255, 255, 0.05);
+            background: radial-gradient(circle at 20% 50%, rgba(96, 165, 250, 0.05), transparent),
+                        radial-gradient(circle at 80% 80%, rgba(167, 139, 250, 0.05), transparent),
+                        linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.6));
             overflow: hidden;
+            margin-top: 80px;
         }
         .placed-element {
             position: absolute;
-            padding: 12px;
-            border-radius: 8px;
-            color: white;
+            padding: 14px;
+            border-radius: 12px;
+            color: #e2e8f0;
             cursor: grab;
             user-select: none;
             font-weight: 500;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            min-width: 90px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            background: rgba(71, 85, 105, 0.3);
+            backdrop-filter: blur(10px);
+            min-width: 100px;
             text-align: center;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 6px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s;
+        }
+        .placed-element:hover {
+            border-color: rgba(148, 163, 184, 0.4);
+            box-shadow: 0 12px 32px rgba(96, 165, 250, 0.15);
         }
         .placed-emoji {
-            font-size: 24px;
+            font-size: 28px;
             line-height: 1;
         }
         .placed-text {
             font-size: 12px;
             word-break: break-word;
             line-height: 1.2;
+            color: #cbd5e1;
         }
         .placed-element:active {
             cursor: grabbing;
@@ -104,17 +147,46 @@
             opacity: 0.7;
             z-index: 1000;
         }
-        .feedback {
+        .placed-element.pop-in {
+            animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes popIn {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.15);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        .toast {
             position: fixed;
-            top: 20px;
+            top: 100px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.9);
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: bold;
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(20px);
+            color: #e2e8f0;
+            padding: 16px 28px;
+            border-radius: 10px;
+            font-weight: 500;
             pointer-events: none;
-            animation: slideDown 0.5s ease-out forwards;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            animation: slideDown 0.4s ease-out forwards;
+            z-index: 999;
+        }
+        .toast.success {
+            border-color: rgba(34, 197, 94, 0.3);
+            color: #86efac;
+        }
+        .toast.hint {
+            border-color: rgba(96, 165, 250, 0.3);
+            color: #93c5fd;
         }
         @keyframes slideDown {
             from {
@@ -126,34 +198,74 @@
                 transform: translateX(-50%) translateY(0);
             }
         }
-        .feedback.success {
-            color: #27ae60;
-        }
-        .feedback.hint {
-            color: #667eea;
-        }
-        .count {
+        .controls {
             position: fixed;
             top: 20px;
             right: 20px;
-            color: white;
-            font-size: 14px;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 10px 15px;
-            border-radius: 6px;
+            display: flex;
+            gap: 12px;
+            z-index: 100;
+        }
+        .btn {
+            background: rgba(71, 85, 105, 0.3);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            color: #e2e8f0;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 13px;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn:hover {
+            background: rgba(71, 85, 105, 0.5);
+            border-color: rgba(148, 163, 184, 0.4);
+            box-shadow: 0 4px 12px rgba(96, 165, 250, 0.2);
+        }
+        .count {
+            background: rgba(71, 85, 105, 0.3);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            backdrop-filter: blur(10px);
+            color: #cbd5e1;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.2);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(148, 163, 184, 0.4);
         }
     </style>
 </head>
 <body>
+    <div class="header">
+        <h1>✨ Yair and Roi's Little Alchemy</h1>
+    </div>
+    <div class="controls">
+        <button class="btn" id="hintBtn">💡 Hint</button>
+        <div class="count">
+            <span id="discoveredCount">0</span> discovered
+        </div>
+    </div>
     <div class="container">
         <div class="sidebar">
             <h2>Elements</h2>
             <div id="elementList"></div>
         </div>
         <div class="canvas" id="canvas"></div>
-    </div>
-    <div class="count">
-        <span id="discoveredCount">0</span> discovered
     </div>
     <script src="game.js"></script>
 </body>
