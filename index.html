@@ -226,6 +226,24 @@
             border-color: rgba(148, 163, 184, 0.4);
             box-shadow: 0 4px 12px rgba(96, 165, 250, 0.2);
         }
+        .btn-danger {
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.5);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+        }
+        .btn-warning {
+            border-color: rgba(251, 146, 60, 0.3);
+        }
+        .btn-warning:hover {
+            background: rgba(251, 146, 60, 0.2);
+            border-color: rgba(251, 146, 60, 0.5);
+            box-shadow: 0 4px 12px rgba(251, 146, 60, 0.2);
+            color: #fdba74;
+        }
         .count {
             background: rgba(71, 85, 105, 0.3);
             border: 1px solid rgba(148, 163, 184, 0.2);
@@ -256,6 +274,8 @@
     </div>
     <div class="controls">
         <button class="btn" id="hintBtn">💡 Hint</button>
+        <button class="btn btn-danger" id="clearCanvasBtn">🧹 Clear Canvas</button>
+        <button class="btn btn-warning" id="resetProgressBtn">🔄 Reset Progress</button>
         <div class="count">
             <span id="discoveredCount">0</span> discovered
         </div>

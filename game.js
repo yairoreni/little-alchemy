@@ -284,6 +284,8 @@ class Game {
         this.renderSidebar();
         this.setupEventListeners();
         document.getElementById('hintBtn').addEventListener('click', () => this.giveHint());
+        document.getElementById('clearCanvasBtn').addEventListener('click', () => this.clearCanvas());
+        document.getElementById('resetProgressBtn').addEventListener('click', () => this.resetProgress());
     }
 
     renderSidebar() {
@@ -461,6 +463,23 @@ class Game {
         const dx = (e1.x + e1.width / 2) - (e2.x + e2.width / 2);
         const dy = (e1.y + e1.height / 2) - (e2.y + e2.height / 2);
         return Math.sqrt(dx * dx + dy * dy) < distance;
+    }
+
+    clearCanvas() {
+        this.placedElements.clear();
+        this.renderCanvas();
+        this.showFeedback('🧹 Canvas cleared!', 'hint');
+    }
+
+    resetProgress() {
+        if (confirm('Are you sure you want to erase all your progress?')) {
+            this.discovered = new Set(STARTING_ELEMENTS);
+            this.placedElements.clear();
+            this.saveGame();
+            this.renderSidebar();
+            this.renderCanvas();
+            this.showFeedback('🔄 Progress reset to starting elements!', 'hint');
+        }
     }
 
     giveHint() {
